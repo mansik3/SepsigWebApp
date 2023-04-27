@@ -1,32 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- basic HTML metadata container -->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form</title>
+    <title>Vital Input Page</title>
 </head>
 <body>
-    <h1>Vital Input Page</h1>
-    <form action="results.html" method="POST">
-        <div>
-            <label for="heart rate">Heart Rate:</label>
-            <input type = "number" heart rate = "heart rate" id="heart rate">
-        </div>
-        <div>
-            <label for="respitory rate">Respitory Rate:</label>
-            <input type = "number" respitory rate = "respitory rate" id="respitory rate">
-        </div>
-        <div>
-            <label for="body temperature">Body Temperature:</label>
-            <input type = "number" body temperature = "body temperature" id="body temperature">
-        </div>
-        <div>
-            <label for="blood pressure">Blood Pressure:</label>
-            <input type = "number" blood pressure = "blood pressure" id="blood pressure">
-        </div>
-        <button type="submit">Submit</button>
-    </form>
-    
+    <h1>Vital Input Page</h1> <!-- h1 creates a header of the largest size -->
+    <h2>Input Data</h2> <!-- h2 creates a header of second largest size -->
+    <div> <!-- div creates a new "section" in the document -->
+        <label for="Patient ID">Patient ID:</label> <!-- text label for the input field -->
+        <input type = "number" id="patientID"> <!-- input field, type represents what is being inputted and id is the name of the input field -->
+    </div>
+    <div>
+        <label for="heart rate">Heart Rate:</label>
+        <input type = "number" id="heartRate">
+    </div>
+    <div>
+        <label for="respitory rate">Respitory Rate:</label>
+        <input type = "number" id="respiratoryRate">
+    </div>
+    <div>
+        <label for="body temperature">Body Temperature:</label>
+        <input type = "number" id="bodyTemperature">
+    </div>
+    <div>
+        <label for="systolic blood pressure">Systolic Blood Pressure:</label>
+        <input type = "number" id="sysBloodPressure">
+    </div>
+    <div>
+        <label for="diastolic blood pressure">Diastolic Blood Pressure:</label>
+        <input type = "number" id="diaBloodPressure">
+    </div>
+    <button id="createData">ADD PATIENT</button> <!-- creates a button with id "createData" and overlayed text "ADD PATIENT" -->
+    <button id="enterData">UPDATE DATA</button>
+    <div>
+        <br><br><h2>Get Data</h2> <!-- br is a line break -->
+        <label for="enter your id">Enter your Patient ID:</label>
+        <input type = "number" id="enterPatientID"><br><br>
+        <button id="getData">GET DATA</button>
+    </div>
+
+    <h3 id="findHR" type="text"></h3> <!-- blank header lines where the vital data will be displayed when someone clicks the GET DATA button -->
+    <h3 id="findRR" type="text"></h3>
+    <h3 id="findBT" type="text"></h3>
+    <h3 id="findSysBP" type="text"></h3>
+    <h3 id="findDiaBP" type="text"></h3> <br><br>
+
+    <script type="module"> // javascript script for the actual functionality of the page
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyAOcoGwCuiwJT_lBlcotVyjzC19cOi0Evs",
+          authDomain: "sepsig-8d2b1.firebaseapp.com",
+          databaseURL: "https://sepsig-8d2b1-default-rtdb.firebaseio.com",
+          projectId: "sepsig-8d2b1",
+          storageBucket: "sepsig-8d2b1.appspot.com",
+          messagingSenderId: "1065759806143",
+          appId: "1:1065759806143:web:685b36792bfa7774d7ec0a",
+          measurementId: "G-29FWMW91ZJ"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // the code above here was pasted from the project settings in the Firebase database
+
+        import {getDatabase, set, get, update, remove, ref, child} from "https://www.gstatic.com/firebasejs/9.20.0/firebase-database.js"
+        // the above line imports the specific functions needed for CRUD functionality from Firebase
+
+        const db = getDatabase(); // creates a variable called "db" that represents the database
+
+        var enterID = document.querySelector("#patientID"); // creates variable called "enterID" that finds the id "patientID" from this file using querySelector function
+        var enterHeartRate = document.querySelector("#heartRate");
+        var enterRespiratoryRate = document.querySelector("#respiratoryRate");
+        var enterBodyTemperature = document.querySelector("#bodyTemperature");
+        var enterSysBloodPressure = document.querySelector("#sysBloodPressure");
+        var enterDiaBloodPressure = document.querySelector("#diaBloodPressure");
+        var enterPatientID = document.querySelector("#enterPatientID");
+
+        var createBtn = document.querySelector("#createData");
+        var submitDataBtn = document.querySelector("#enterData");
+        var getDataBtn = document.querySelector("#getData");
+
+        // function that is called if ADD PATIENT button is clicked
+        function CreateData() {
+            // if nothing is entered into the ID field, alert the user
+            if (!enterID || !enterID.value) {
+                alert("Please enter a valid ID!");
+            } else {
+                // using the "set" method from Firebase that puts new data into the database
+                // "ref" method tells where to set the new data 
+                // (in this case, goes to Patients/*whatever the user input into the ID field* directory)
+                set(ref(db, "Patients/" + enterID.value), {
+                    // AttributeName (from Firebase): value from the input field
+                    ID: enterID.value,
+                    HeartRate: enterHeartRate.value, 
+                    RespiratoryRate: enterRespiratoryRate.value, 
+                    BodyTemperature: enterBodyTemperature.value, 
+                    SystolicBP: enterSysBloodPressure.value, 
+                    DiastolicBP: enterDiaBloodPressure.value
+                })
+                .then(()=>{
+                    // after the set method finishes running, alert user that a new Patient was successfully created
+                    alert("Patient created successfully!")
+                })
+                .catch((error)=>{
+                    // if an error occurs, catch the error and alert the user of the error that occured
+                    alert(error)
+                });
+            }
+        }
+
+        // function that is called when GET DATA button is clicked
+        function GetData() {
+            // creates a specific reference to the database
+            const dbref = ref(db);
+
+            // calls "get" method from Firebase and finds whatever is under the "Patients/*enterID*" directory
+            // for us, the "child" method will return the attributes under the requested PatientID
+            // snapshot takes a "picture" of the current data in the requested directory
+            get(child(dbref, "Patients/" + enterPatientID.value))
+            .then((snapshot)=>{
+                // using the snapshot, check if data actually exists
+                if (snapshot.exists()) {
+                    // if patient exists, uses the h3 headers created before and updates the page
+                    // with text and the snapshot database value
+                    findHR.innerHTML = "Heart rate: " + snapshot.val().HeartRate;
+                    findRR.innerHTML = "Respiratory rate: " + snapshot.val().RespiratoryRate;
+                    findBT.innerHTML = "Body temperature: " + snapshot.val().BodyTemperature;
+                    findSysBP.innerHTML = "Systolic blood pressure: " + snapshot.val().SystolicBP;
+                    findDiaBP.innerHTML = "Diastolic blood pressure: " + snapshot.val().DiastolicBP;
+                } else {
+                    // if patient does not exists, alert the user
+                    alert("Patient does not exist!");
+                }
+            })
+            .catch((error)=>{
+                // if an error occurs, catch the error and alert the user of the error
+                alert(error);
+            });
+        }
+
+        // function that is called if UPDATE DATA button is clicked
+        function UpdateData() {
+            if (!enterID || !enterID.value) {
+                alert("Please enter a valid ID!");
+            } else {
+                // same process as GetData method of checking if data exists
+                const dbref = ref(db);
+                get(child(dbref, "Patients/" + enterID.value))
+                .then((snapshot)=>{
+                    if (snapshot.exists()) {
+                        // if data exists, call "update" method from Firebase
+                        // goes to the directory passed in as the second argument of ref call
+                        // sets the attributes to whatever was entered into the input fields
+                        update(ref(db, "Patients/" + enterID.value), {
+                            HeartRate: enterHeartRate.value, 
+                            RespiratoryRate: enterRespiratoryRate.value, 
+                            BodyTemperature: enterBodyTemperature.value, 
+                            SystolicBP: enterSysBloodPressure.value, 
+                            DiastolicBP: enterDiaBloodPressure.value
+                        })
+                        .then(()=>{
+                            // after update successfully runs, alert the user
+                            alert("Data updated successfully!");
+                        })
+                        .catch((error)=>{
+                            // if an error occurs, alert the user of the error
+                            alert(error);
+                        });
+                    } else {
+                        // if no valid snapshot (Patient) exists, alert the user
+                        alert("Patient does not exist!");
+                    }
+                })
+            }
+        }
+
+
+        // uses the button variables and calls addEventListener 
+        // which calls the function in the second parameter if 
+        // the first parameter is met (in this case, if the button is clicked)
+        createBtn.addEventListener('click', CreateData); 
+        submitDataBtn.addEventListener('click', UpdateData);
+        getDataBtn.addEventListener('click', GetData);
+
+      </script>
 </body>
 </html>
