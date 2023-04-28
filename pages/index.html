@@ -43,6 +43,7 @@
         <button id="getData">GET DATA</button>
     </div>
 
+    <h3 id="dateTime" type="text"></h3>
     <h3 id="findHR" type="text"></h3> <!-- blank header lines where the vital data will be displayed when someone clicks the GET DATA button -->
     <h3 id="findRR" type="text"></h3>
     <h3 id="findBT" type="text"></h3>
@@ -101,6 +102,9 @@
                 // using the "set" method from Firebase that puts new data into the database
                 // "ref" method tells where to set the new data 
                 // (in this case, goes to Patients/*whatever the user input into the ID field* directory)
+                var curDate = new Date();
+                var dateTime = (curDate.getMonth()+1) + "/" + curDate.getDate() + "/" + curDate.getFullYear() 
+                + " @ " + curDate.getHours() + ":" + curDate.getMinutes();
                 set(ref(db, "Patients/" + enterID.value), {
                     // AttributeName (from Firebase): value from the input field
                     ID: enterID.value,
@@ -108,7 +112,8 @@
                     RespiratoryRate: enterRespiratoryRate.value, 
                     BodyTemperature: enterBodyTemperature.value, 
                     SystolicBP: enterSysBloodPressure.value, 
-                    DiastolicBP: enterDiaBloodPressure.value
+                    DiastolicBP: enterDiaBloodPressure.value,
+                    TimeOfEntry: dateTime
                 })
                 .then(()=>{
                     // after the set method finishes running, alert user that a new Patient was successfully created
@@ -135,6 +140,7 @@
                 if (snapshot.exists()) {
                     // if patient exists, uses the h3 headers created before and updates the page
                     // with text and the snapshot database value
+                    dateTime.innerHTML = "Time of entry: " + snapshot.val().TimeOfEntry;
                     findHR.innerHTML = "Heart rate: " + snapshot.val().HeartRate;
                     findRR.innerHTML = "Respiratory rate: " + snapshot.val().RespiratoryRate;
                     findBT.innerHTML = "Body temperature: " + snapshot.val().BodyTemperature;
@@ -164,12 +170,16 @@
                         // if data exists, call "update" method from Firebase
                         // goes to the directory passed in as the second argument of ref call
                         // sets the attributes to whatever was entered into the input fields
+                        var curDate = new Date();
+                        var dateTime = (curDate.getMonth()+1) + "/" + curDate.getDate() + "/" + curDate.getFullYear() 
+                        + " @ " + curDate.getHours() + ":" + curDate.getMinutes();
                         update(ref(db, "Patients/" + enterID.value), {
                             HeartRate: enterHeartRate.value, 
                             RespiratoryRate: enterRespiratoryRate.value, 
                             BodyTemperature: enterBodyTemperature.value, 
                             SystolicBP: enterSysBloodPressure.value, 
-                            DiastolicBP: enterDiaBloodPressure.value
+                            DiastolicBP: enterDiaBloodPressure.value,
+                            TimeOfEntry: dateTime
                         })
                         .then(()=>{
                             // after update successfully runs, alert the user
